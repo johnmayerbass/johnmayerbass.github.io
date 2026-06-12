@@ -1,0 +1,58 @@
+Watching for changes in /Users/sujin/Dev/00_Github/01_Blog/HugoBlog/assets/{img,scss}, /Users/sujin/Dev/00_Github/01_Blog/HugoBlog/content/{categories,page,post}
+Watching for config changes in /Users/sujin/Dev/00_Github/01_Blog/HugoBlog/config/_default, /Users/sujin/Dev/00_Github/01_Blog/HugoBlog/go.mod
+Start building sites … 
+hugo v0.163.1+extended+withdeploy darwin/arm64 BuildDate=2026-06-11T15:34:40Z VendorInfo=Homebrew
+
+
+                  │ EN 
+──────────────────┼────
+ Pages            │ 37 
+ Paginator pages  │  0 
+ Non-page files   │  4 
+ Static files     │  0 
+ Processed images │ 13 
+ Aliases          │ 13 
+ Cleaned          │  0 
+
+Built in 38 ms
+Environment: "development"
+Serving pages from disk
+Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1) 
+Press Ctrl+C to stop
+
+Change detected, rebuilding site (#1).
+2026-06-12 17:38:59.532 +0900
+Source changed /post/docker-swarm-recovery/index.md
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
+Total in 16 ms
+
+Change detected, rebuilding site (#2).
+2026-06-12 17:40:01.031 +0900
+Source changed /post/docker-swarm-recovery/index.md
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
+Total in 21 ms
+
+Change detected, rebuilding site (#3).
+2026-06-12 17:42:50.031 +0900
+Source changed /post/docker-swarm-recovery/index.md
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
+Total in 22 ms
+
+Change detected, rebuilding site (#4).
+2026-06-12 17:46:05.530 +0900
+Source changed /post/docker-swarm-recovery/index.md
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
+Total in 19 ms
+
+Change detected, rebuilding site (#5).
+2026-06-12 17:48:03.533 +0900
+Source changed /post/docker-swarm-recovery/index.md
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
+Total in 26 ms
+
+Change detected, rebuilding site (#6).
+2026-06-12 17:48:32.030 +0900
+Source changed /post/hello-world/index.md
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
+Total in 19 ms
