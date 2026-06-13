@@ -19,7 +19,7 @@ SortBy              = "default"
 
 [sidebar]
     emoji    = "🚀"
-    subtitle = "개인 기록용 블로그입니다."
+    subtitle = "Keep logging."
     avatar   = "img/avatar.png"
 
 [article]
@@ -28,7 +28,7 @@ SortBy              = "default"
     readingTime   = true
 
     [article.license]
-        enabled = true
+        enabled = false
         default = "Licensed under CC BY-NC-SA 4.0"
 
 [widgets]

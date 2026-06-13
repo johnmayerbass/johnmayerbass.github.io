@@ -1,5 +1,5 @@
 ---
-title: Blog 제작기 Ep.01 - Hugo Server & local 구축
+title: Blog 제작기 Ep.01 - Hugo Server & 로컬 환경 테스트
 description: Hugo Server와 stack 테마를 이용한 블로그 제작
 slug: blog_01
 date: 2026-06-13T13:00:00+09:00
@@ -43,6 +43,51 @@ AI가 범람하는 이런 시대에도 말이다.
 
 ## Progress
 ### Github Repository 생성
+- 깃헙 로그인 후 `아이디.github.io` 형태의 이름으로 리파지토리를 생성했다.
+
+### Hugo 설치
+- 맥 기준으로 Homebrew 사용해서 설치 했다.
+```bash
+brew install hugo
+```
+
+- 설치 확인
+```bash
+hugo version
+```
+
+### Repository Clone
+- 로컬에서 원하는 로컬 디렉토리로 이동 후 클론 명령어 실행
+```bash
+git clone https://github.com/CaiJimmy/hugo-theme-stack-starter.git blog
+```
+
+### Github 연결 변경
+```bash
+git remote remove origin
+
+git remote add origin https://github.com/johnmayerbass/johnmayerbass.github.io.git
+```
+
+### 사이트 정보 수정
+- `config/_default/xx.toml` 설정 파일 수정
+
+### 첫 글 작성 및 로컬 테스트
+- 게시글 작성
+```bash
+# docker-swarm-recovery 이름의 디렉토리에 index.md 파일 생성
+hugo new post/docker-swarm-recovery/index.md
+```
+- hugo 서버 가동 및 확인
+```bash
+# 서버 가동
+hugo server
+# 접속
+http://localhost:1313
+```
+
+
+
 
 
 
