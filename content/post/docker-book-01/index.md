@@ -223,7 +223,7 @@ vim --version
 
 ---
 
-### 그림으로 보면
+> 그림으로 보면
 
 ```
 ubuntu:24.04
@@ -275,4 +275,139 @@ docker image load --input save.tar
 
 # 결과
 ubuntu:22.04 이미지 생성
+```
+
+## 17.3 명령어를 실행해서 레이어 확정하기 RUN
+```bash
+# vi 명령어를 설치하는 Dockerfile
+FROM ubuntu:24.04
+
+RUN apt-get update
+RUN apt-get install -y vim
+```
+
+- 도커 파일로 이미지 빌드하기
+```bash
+docker image build --tag my-ubuntu:24.04 .
+
+# . 의미 : 현재 디렉토리를 빌드 컨텍스트로 사용(Dockerfile이 현재 디렉토리에 있다)
+```
+
+> RUN의 && 기호 활용
+
+```bash
+# RUN이 &&로 이어진 도커파일
+FROM ubuntu:24.04
+
+RUN apt-get update && apt-get install -y vim && rm -rf /var/lib/apt/lists/*
+```
+
+- RUN 명령어를 한개로 레이어를 합치는 이유 중 하나는 이미지 크기 줄이기이다.
+- 위 명령어에서 apt 패키지 목록 캐시를 삭제하는데 `&&`로 합치면 한 레이어 안에서 생성 후 삭제하므로 최종 이미지에는 패키지 목록이 남지 않는다. 따라서 이미지 크기를 줄일 수 있다. 
+
+```bash
+# 빌드해서 이미지 크기 비교시
+
+# 1레이어
+docker image build --file Dockerfile-1layers --tag my-ubuntu:1layer .
+
+# 3레이어
+docker image build --file Dockerfile-3layers --tag my-ubuntu:3layer .
+
+# 크기 비교
+IMAGE                                ID             DISK USAGE   CONTENT SIZE   EXTRA
+booksentinelv2-booksentinel:latest   d74bda613a2b       3.64GB         1.02GB        
+my-ubuntu:1layer                     e0fc2240986b        245MB           52MB        
+my-ubuntu:3layer                     d5239e128560        336MB         89.6MB
+```
+
+## 18.2 호스트머신의 파일을 이미지에 추가 COPY
+
+### conf.d 사용
+
+-  디렉토리 구조
+
+```
+project/
+├── Dockerfile
+└── custom.cnf
+```
+
+-  custom.cnf
+
+```
+[mysqld]
+max_connections = 500
+```
+
+-  Dockerfile
+
+```
+FROM mysql:9.0.1
+
+COPY ./custom.cnf /etc/mysql/conf.d/custom.cnf
+```
+
+빌드:
+
+```
+docker build-t my-mysql:9.0.1 .
+```
+
+실행:
+
+```
+docker run-d \
+--name mysql \
+-eMYSQL_ROOT_PASSWORD=1234 \
+  my-mysql:9.0.1
+```
+
+---
+
+왜 이게 더 안전할까?
+
+MySQL 공식 이미지 내부에는 원래 이런 구조가 있다.
+
+```
+/etc/my.cnf
+ └─ !includedir /etc/mysql/conf.d/
+```
+
+즉 MySQL이 시작될 때
+
+1. `/etc/my.cnf` 읽음
+2. `/etc/mysql/conf.d/*.cnf` 읽음
+3. 설정 병합
+
+따라서
+
+```
+COPY custom.cnf /etc/mysql/conf.d/custom.cnf
+```
+
+를 사용하면 기존 설정은 그대로 유지되고,
+
+```
+[mysqld]
+max_connections=500
+```
+
+만 추가 적용된다.
+
+## 19.1 컨테이너 가동 시 명령어 지정 - CMD
+- 가동 시 명령어를 지정하는 Dockerfile
+```bash
+FROM python:3.12.5
+CMD ["/usr/local/bin/python3", "-m", "http.server", "8000"]
+```
+
+- 작성한 Dockerfile로 이미지 작성
+```bash
+docker image build --tag my-python:web .
+```
+
+- 작성한 이미지 가동
+```bash
+docker run --name web --rm --detach -p 8000:8000 my-python:web
 ```
