@@ -411,3 +411,93 @@ docker image build --tag my-python:web .
 ```bash
 docker run --name web --rm --detach -p 8000:8000 my-python:web
 ```
+
+## 21.2 컨테이너 가동 시 볼륨 마운트
+- 새로운 볼륨 작성 후 MySQL 컨테이너에 마운트
+```bash
+# 볼륨 작성하기
+docker volume create --name db-volume
+
+# MySQL 설정 파일 확인
+docker container run --rm mysql:8.4.2 cat /etc/my.cnf
+[mysqld]
+datadir=/var/lib/mysql
+
+# 볼륨을 마운트해서 MySQL 컨테이너 가동
+docker run --name db1 --rm -d --env MYSQL_ROOT_PASSWORD=secret --env MYSQL_DATABASE=sample -p 3306:3306 --mount type=volume,source=db-volume,destination=/var/lib/mysql mysql:8.4.2
+
+# 이후 MySQL 서버에서 create, insert 문으로 데이터 생성
+
+# 컨테이너 정지 후 같은 볼륨을 마운트 
+## 볼륨을 이용하므로 데이터는 이미 작성이 끝난 상태 -> 볼륨 데이터를 그대로 사용하도록 환경변수는 지정하지 않음
+docker run --name db2 --rm -d -p 3306:3306 --mount type=volume,source=db-volume,destination=/var/lib/mysql mysql:8.4.2
+```
+> 데이터 확인 -> MySQL 서버 데이터가 그대로 남아 있음
+
+## 22.2 볼륨과 바인드 마운트의 차이점
+- 볼륨
+    - 볼륨은 도커 엔진 관리에서 문제가 생겨도 호스트머신에 영향을 주지 않음
+- 바인드마운트
+    - 호스트머신과 컨테이너에서 디렉터리를 공유할수 있다. 호스트머신의 편집기로 파일을 편집해서 컨테이너에서 실행하는 개발 환경이라면 필수적인 방식.
+
+## 23.2 컨테이너 가동 시 네트워크에 접속하기
+- PHP 컨테이너에서 MySQL 컨테이너와 통신
+```bash
+# 네트워크 작성
+docker network create my-network
+
+# 네트워크를 지정해서 MySQL 컨테이너 가동
+docker container run --mount type=bind,source="$(pwd)",destination=/my-work --network my-network my-php:pdo_mysql php /my-work/main.php
+
+# 접속정보가 작성 된 main.php 파일 생성
+$dsn = 'mysql:host=db;port=3306;dbname=sample';
+$username = 'root';
+$password = 'secret';
+$pdo = new PDO($dsn, $username, $password);
+```
+
+---
+> my-network 살펴보기
+```bash
+docker network inspect my-network
+
+# 결과
+"Containers": {
+            "296cdd1985492fb3b62f7e243c126c75137a7b64a2f92e7f33d6d601b0069ff4": {
+                "Name": "db",  # db 컨테이너 접속 중 
+                "EndpointID": "485a76985d3e20dd9b844b53d7a6e1031f6c779453bd8bdf45f1a09924f14798",
+                "MacAddress": "f2:79:34:aa:b4:1e",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            }
+},
+```
+---
+> PHP 컨테이너 MySQL 컨테이너 통신 테스트
+```bash
+# 동일하게 my-network로 접속
+docker container run --rm --mount type=bind,source="$(pwd)",destination=/my-work --network my-network my-php:pdo_mysql php /my-work/main.php
+```
+---
+> 만약 PHP 컨테이너 가동 시 network 옵션을 주지 않는다면?
+```
+docker run \
+  my-php:pdo_mysql \
+  php /my-work/main.php
+```
+
+이 경우 PHP 컨테이너는 기본 bridge 네트워크에 붙음.
+
+```
+PHP 컨테이너 -> bridge
+MySQL 컨테이너 -> my-network
+```
+
+서로 다른 네트워크. 그래서
+
+```
+host=mysql-db
+```
+를 찾을 수 없음.
+
+
