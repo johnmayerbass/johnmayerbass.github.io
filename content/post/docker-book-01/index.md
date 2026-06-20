@@ -6,7 +6,8 @@ date: 2026-06-14T00:25:00+09:00
 categories:
     - Book
 tags:
-    - Book  
+    - Book
+    - Docker 
 comments: true
 #draft: true
 
@@ -16,6 +17,11 @@ comments: true
 
 
 # 그림으로 배우는 도커
+> 이 책을 읽게된 계기
+
+도커를 업무적으로 사용하다보면 항상 쓰던 방법과 익숙한 방식으로만 사용하게 된다. 
+그래서 한번쯤 리마인드 겸 기초부터 정리해보고 싶었고, 그러던 찰나 서점에서 괜찮아 보이는 도커 입문서가 있어서 읽게 되었다. 
+
 ## 9.1 컨테이너 포트 공개하기
 ```bash
 # 백그라운드로 nginx 서버 실행
@@ -599,4 +605,21 @@ docker compose down
 ### 모든 컨테이너, 이미지, 볼륨 삭제
 ```bash
 docker compose down --rmi all --volumes
+```
+## 32.1 현재 상태 정리
+- 상세 내용을 확인하는 명령어
+```bash
+docker container inspect work-db-1 # NAME
+
+# Config.Cmd 란에서는 컨테이너 가동 시 기본 명령어 확인가능
+"Cmd": [
+    "/usr/local/bin/php",
+    "--server",
+    "0.0.0.0:8000",
+    "--docroot",
+    "/my-work"
+],
+
+# 네트워크 상세 내용
+docker network inspect work_default
 ```
