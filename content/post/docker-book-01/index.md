@@ -500,4 +500,103 @@ host=mysql-db
 ```
 를 찾을 수 없음.
 
+## 25.1 웹 서비스 개발환경 구축
 
+> 구성도 정리
+![웹 서비스 구성도](docker_book_configuration.jpg)
+
+
+- 컨테이너 테스트 및 run 매개변수 정리 후 아래와 같이 구성도를 완성한다.
+> 최종 완성된 구성도
+![웹 서비스 구성도](docker_book_configuration_final.jpg)
+
+## docker 명령어를 compose.yml로 이식하기
+
+- 도커 컴포즈는 다수의 컨테이너를 정의하고 실행하는 도구이다. yml(yaml) 파일에 정의한 내용에 따라 명령어 하나로 정의한 모든 컨테이너를 가동한다.
+
+> compose.yml 파일
+```bash
+services:
+  app:
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./src
+        target: /my-work
+    build: ./docker/app # 기존의 Dockerfile을 사용한다 
+
+  db:
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=pass1234
+      - MYSQL_DATABASE=sample
+      - TZ=Asia/Seoul
+    ports:
+      - "3306:3306"
+    volumes:
+      - type: volume
+        source: db-compose-volume
+        target: /var/lib/mysql
+
+      - type: bind
+        source: ./docker/db/init
+        target: /docker-entrypoint-initdb.d
+    image: mysql:8.4.2
+
+  mail:
+    environment:
+      - TZ=Asia/Seoul
+      - MP_DATA_FILE=/data/mailpit.db
+    ports:
+      - "8025:8025"
+    volumes:
+      - type: volume
+        source: mail-compose-volume
+        target: /data
+    image: axllent/mailpit:v1.20.4
+
+
+volumes:
+  db-compose-volume:
+  mail-compose-volume:
+```
+- 기본값으로 도커 컴포즈는 컨테이너를 가동할 때 브릿지 네트워크를 작성해서 모든 컨테이너를 해당 네트워크에 접속한다. 컨테이너는 서비스명을 이용해서 서로 통신한다.
+
+> 가동
+```bash
+# Dockerfile 수정 시 재빌드
+docker compose up --detach --build
+
+# 일반실행
+docker compose up -d
+```
+
+### 컨테이너 목록 확인
+```bash
+# compose가 있는 디렉토리 내에서
+docker compose ps
+
+# 결과
+NAME                IMAGE                     COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+webservice-app-1    webservice-app            "docker-php-entrypoi…"   app       12 minutes ago   Up 12 minutes             0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+webservice-db-1     mysql:8.4.2               "docker-entrypoint.s…"   db        12 minutes ago   Up 12 minutes             0.0.0.0:3306->3306/tcp, [::]:3306->3306/tcp, 33060/tcp
+webservice-mail-1   axllent/mailpit:v1.20.4   "/mailpit"               mail      12 minutes ago   Up 12 minutes (healthy)   1025/tcp, 1110/tcp, 0.0.0.0:8025->8025/tcp, [::]:8025->8025/tcp
+```
+
+### 가동중인 컨테이너에 명령어 실행
+```bash
+docker compose exec db bash
+```
+
+### 모든 컨테이너 삭제
+```bash
+# down을 실행하면 네트워크, 컨테이너의 요소가 삭제된다.
+docker compose down
+```
+
+### 모든 컨테이너, 이미지, 볼륨 삭제
+```bash
+docker compose down --rmi all --volumes
+```
