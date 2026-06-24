@@ -188,3 +188,37 @@ kubectl describe pod myapp -n default
 ```bash
 kubectl logs myapp -n default
 ```
+
+## 5.3 kubectl 명령어로 상세 정보 출력하기
+### 디버그용 사이드카 컨테이너 : kubectl debug
+```bash
+# 명령어
+kubectl debug --stdin --tty <디버그 대상 pod 이름> --image=<디버그용 컨테이너 이미지> --target=<디버그 대상의 컨테이너 이름> --namespace default -- sh
+
+# 사용 예
+kubectl debug --stdin --tty myapp --image=curlimages/curl:8.4.0 --target=hello-server --namespace default -- sh
+```
+
+### 디버깅용 pod 생성
+- 클러스터 내부에서 IP 주소로 접속이 되는지를 확인한다.
+```bash
+# 로그인용 pod 생성
+kubectl run curlpod --image=curlimages/curl:8.4.0 -- sleep infinity
+
+# 확인
+kubectl get pod
+
+NAME      READY   STATUS    RESTARTS      AGE
+curlpod   1/1     Running   0             11m
+
+# 접속할 pod의 ip 주소 확인
+kubectl get pod myapp -o wide -n default
+
+# 로그인용 pod에 로그인
+kubectl -n default exec --stdin --tty curlpod -- /bin/sh
+or
+kubectl exec -it curlpod -- sh
+
+# 통신 확인
+curl <myapp Pod의 IP>:8080
+```
