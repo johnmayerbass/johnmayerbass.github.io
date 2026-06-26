@@ -13,7 +13,7 @@ comments: true
 
 ---
 
-![그림과 실습으로 배우는 쿠버네티스](kube-book.png)
+![Netshoot](netshoot.png)
 
 # Netshoot 
 
@@ -26,12 +26,20 @@ comments: true
 ## Docker Hub
 https://hub.docker.com/r/nicolaka/netshoot
 
+## GIT
+https://github.com/nicolaka/netshoot
+
 ## Version
 v0.15
 
 ## 실행
 ```bash
-docker run --rm -it --net host --cap-add NEW_ADMIN --cap-add NET_RAW <이미지>
+docker run --rm -it --net host --cap-add NET_ADMIN --cap-add NET_RAW <이미지>
 ```
+
+- 설명
+  - `--net host`: 컨테이너가 호스트의 네트워크를 그대로 사용하도록 함.
+  - `--cap-add NET_ADMIN`: 네트워크 설정 조회 및 관리 권한을 추가.
+  - `--cap-add NET_RAW`: ping과 같은 Raw Socket 기반 네트워크 도구를 사용할 수 있도록 권한을 추가.
 
 
