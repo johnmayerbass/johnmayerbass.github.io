@@ -18,6 +18,8 @@ comments: true
 # 그림과 실습으로 배우는 쿠버네티스
 > 이 책을 읽게된 계기
 
+실무에서 도커를 사용하다보면 항상 따라오는게 쿠버네티스이다. 우리 회사 서비스 규모에서는 굳이 쿠버네티스를 사용할 환경이 아니지만 실무와는 별개로 도커는 아는데 쿠버네티스는 모른다는게 항상 맘에 걸렸었다. 그래서 서점에서 가장 쉬워보이는 쿠버네티스 책으로 쿠버네티스 학습을 시작했다.   
+
 ## 1.3 나만의 http server 컨테이너 만들어보기
 - 멀티스테이지를 활용한 Dockerfile
 ```bash
@@ -222,3 +224,24 @@ kubectl exec -it curlpod -- sh
 # 통신 확인
 curl <myapp Pod의 IP>:8080
 ```
+
+### kubectl edit을 통한 매니페스트 편집
+- 간단히 수정할순 있지만 가급적 정식 배포 절차를 거쳐 파일을 수정하자.
+```bash
+kubectl edit pod myapp -n default
+
+# 변경사항 확인
+kubectl get pod myapp -o yaml -n default
+```
+
+## 편리한 터미널 사용을 위한 팁
+### kubectl 별명 설정
+```bash
+# alias 설정
+alias k=kubectl
+```
+### 약어 확인
+```bash
+kubectl api-resources
+```
+
