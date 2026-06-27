@@ -245,3 +245,80 @@ alias k=kubectl
 kubectl api-resources
 ```
 
+## 6.2 Pod의 다중화를 위한 ReplicaSet과 Deployment
+### Replicaset
+- Replicaset은 지정한 수만큼 Pod를 복제하는 리소스. 
+
+```bash
+# Replicaset 리소스 조회
+kubectl get replicaset -n default
+
+# delete
+kubectl delete replicaset httpserver -n default
+```
+
+### Deployment
+- 여러 ReplicaSet을 연결하는 것
+```bash
+# Deployment 조회
+kubectl get deployment -n default
+
+# Replicaset 조회
+kubectl get replicaset -n default
+
+# 결과
+NAME                          DESIRED   CURRENT   READY   AGE
+nginx-deployment-595dff4799   3         3         3       28s
+```
+
+- Pod 업데이트 해보기
+  - 매니페스트 수정(nginx 이미지 버전 수정) 후 적용
+```bash
+# 새로 적용
+k apply --filename ./chapter-04/deployment.yaml -n default
+
+# Replicaset 조회시 새로 만들어진 것 확인 가능
+k get replicaset
+
+NAME                          DESIRED   CURRENT   READY   AGE
+nginx-deployment-595dff4799   0         0         0       133m
+nginx-deployment-789bf7b8fc   3         3         3       25s   # 새로 생성 
+``` 
+
+- Deplyment 상세 조회 시 확인
+```bash
+# 생성된 deployment 확인
+k get deployment
+
+# 상세 조회
+k describe deployment nginx-deployment
+
+# 결과
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+```
+- RollingUpdate
+  - Pod를 순차적으로 업데이트함.
+- RollingUpdateStrategy
+  - max unavailable
+    - 최대 몇 개의 Pod를 동시에 종료할 수 있는가
+  - max surge
+    - 최대 몇 개의 Pod를 새로 생성할 수 있는가
+    - 만약 max surge가 100%이면 기존 Pod의 수와 동일한 수의 새로운 Pod를 생성한다. 즉 Pod를 가장 빠르고 안전하게 업데이트하는 방법이다. 하지만 필요한 리소스가 일시적으로 두 배로 늘어나기 때문에 가용 리소스가 충분한지 미리 확인해야 한다.
+
+> Deployment 도입을 통해 애플리케이션을 업데이트하는 중에도 운영을 계속할 수 있어 서비스 중단을 최소화할 수 있다.
+
+- Recreate
+  - `spec.strategy.type: Recreate` 지정시 Pod가 Terminating -> ContainerCreating -> Running으로 전환된다. 즉 Recreate를 지정하면 모든 Pod를 동시에 다시 생성하기 때문에 업데이트는 빠르게 완료되지만, 애플리케이션이 일시적으로 연결 불가능 상태가 된다.
+
+> 매니페스트 적용 확인(JSON)
+
+```bash
+# 명령어
+k get deployment nginx-deployment -o jsonpath='{.spec.strategy}'
+
+# 결과
+{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":"25%"},"type":"RollingUpdate"}
+```
+
